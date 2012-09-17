@@ -1,6 +1,6 @@
 # Blackjack
 
-TODO: Write a gem description
+The classic card game written using Gosu.
 
 ## Installation
 
@@ -18,7 +18,14 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Blackjack contains a blackjack executable in the bin directory.
+
+## Testing
+
+There is currently a bug with rspec and gosu.  In the meantime, I have modified
+`rake test` to take a parameter output.  Therefore:
+
+`rake test` is equivalent ot `rake test spec/**_spec.rb`
 
 ## Contributing
 
