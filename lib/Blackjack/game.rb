@@ -7,11 +7,8 @@ module Blackjack
     def initialize options = {}
       @player = options[:player] || Player.new
       @dealer = options[:dealer] || Player.new
+      @player_stand = false
 
-      new_deck
-    end
-
-    def new_deck
       @deck = Blackjack::Deck.new
     end
 
@@ -21,11 +18,45 @@ module Blackjack
     end
 
     def game_over?
-      player_bust? || dealer_bust? || player_won?
+      if @player.score == 21 && @player.cards.size == 2
+        true
+      elsif (@player.stand && @dealer.stand) || @player.bust? || @dealer.bust?
+        true
+      else
+        false
+      end
     end
 
-    def player_bust?
+    def winner
+      if game_over?
+        winner = :dealer
+        if dealer.bust? || (player.score > dealer.score && !player.bust?)
+          winner = :player
+        elsif player.score == dealer.score
+          winner = :push
+        end
+        winner
+      else
+        nil
+      end
+    end
 
+    def hit target
+      target_person = send target
+      target_person.cards << @deck.deal
+      stand(target) if target_person.score > 21
+    end
+
+    def stand target
+      target_person = send target
+      target_person.stand = true
+    end
+
+    def complete_dealer
+      while @dealer.score < 16
+        hit :dealer
+      end
+      stand :dealer
     end
   end
 end

@@ -19,28 +19,114 @@ module Blackjack
       self.caption = 'Blackjack, powered by Gosu'
 
       @game_in_progress = false
+      @start_button = Gosu::Image.new self, 'lib/blackjack/media/start.png', false
+      @hit_button   = Gosu::Image.new self, 'lib/blackjack/media/hit.png', false
+      @stand_button = Gosu::Image.new self, 'lib/blackjack/media/stand.png', false
+      @hidden_card  = Gosu::Image.new self, 'lib/blackjack/media/cards/hidden.png', false
     end
 
     def update
-      # stub
-    end
-
-    def draw
-      @background.draw 0,0,0
-      if @game_in_progress
-        @font.draw("Dealer", 275, 25, ZOrder::UI, 1.0, 1.0, 0xffffff00)
-        @font.draw("You", 290, 325, ZOrder::UI, 1.0, 1.0, 0xffffff00)
-        @player.cards[0].draw 250, 350, ZOrder::Card
-        @player.cards[1].draw 275, 350, ZOrder::Card
-        @dealer.cards[0].draw 250, 50, ZOrder::Card
-        @dealer.cards[1].draw 275, 50, ZOrder::Card
+      if @game
+        if @game.game_over?
+          @game_in_progress = false
+        elsif @game.player.stand && !@game.dealer.stand
+          @game.complete_dealer
+        end
       end
     end
 
     def button_down id
-      if id == Gosu::KbEscape
+      case id
+      when Gosu::KbEscape
         close
+      when Gosu::MsLeft
+        if !@game_in_progress || (@game && @game.game_over?)
+          if start_button_clicked?
+            @game = Game.new
+            @game.deal
+            @game_in_progress = true
+          end
+        else
+          if hit_button_clicked?
+            @game.hit :player
+          elsif stand_button_clicked?
+            @game.stand :player
+          end
+        end
       end
+    end
+
+    def draw
+      @background.draw 0,0,0
+
+      if @game
+        @font.draw "You: #{@game.player.score}", 290, 325, ZOrder::UI, 1.0, 1.0, 0xffffff00
+
+        draw_cards @game.player, 350
+        draw_dealer_cards
+
+        if @game.player.stand
+          @font.draw "Dealer: #{@game.dealer.score}", 275, 25, ZOrder::UI, 1.0, 1.0, 0xffffff00
+        end
+      end
+
+      draw_ui_options
+      draw_winner
+    end
+
+    def draw_dealer_cards
+      if @game.player.stand
+        draw_cards @game.dealer, 50
+      else
+        @game.dealer.cards[0].draw 250, 50, ZOrder::Card
+        @hidden_card.draw 275, 50, ZOrder::Card
+      end
+    end
+
+    def draw_cards player, y_coord
+      player.cards.each_with_index do |card,index|
+        card.draw 250+((index-1) * 25), y_coord, ZOrder::Card
+      end
+    end
+
+    def draw_ui_options
+      if !@game_in_progress || (@game_in_progress && @game.game_over?)
+        @start_button.draw 275, 220, ZOrder::UI
+      end
+
+      if @game && !@game.game_over?
+        @hit_button.draw 425, 375, ZOrder::UI
+        @stand_button.draw 545, 375, ZOrder::UI
+      end
+    end
+
+    def draw_winner
+      if @game
+        if @game.winner == :push
+          title = "PUSH"
+        elsif @game.winner == :player
+          title = "Player Wins"
+        elsif @game.winner == :dealer
+          title = "Dealer Wins"
+        end
+        @font.draw title, 275, 10, ZOrder::UI
+      end
+    end
+
+    def start_button_clicked?
+      ((275 < mouse_x) && (mouse_x < 375)) && ((220 < mouse_y) && (mouse_y < 270))
+    end
+
+    def hit_button_clicked?
+      ((425 < mouse_x) && (mouse_x < 525)) && ((375 < mouse_y) && (mouse_y < 425))
+    end
+
+    def stand_button_clicked?
+      ((545 < mouse_x) && (mouse_x < 645)) && ((375 < mouse_y) && (mouse_y < 425))
+    end
+
+    def needs_cursor?
+      true
     end
   end
 
