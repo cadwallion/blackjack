@@ -42,15 +42,15 @@ module Blackjack
         close
       when Gosu::MsLeft
         if !@game_in_progress || (@game && @game.game_over?)
-          if @start_button.clicked? mouse_x, mouse_y
+          if @start_button.clicked?
             @game = Game.new
             @game.deal
             @game_in_progress = true
           end
         else
-          if @hit_button.clicked? mouse_x, mouse_y
+          if @hit_button.clicked?
             @game.hit :player
-          elsif @stand_button.clicked? mouse_x, mouse_y
+          elsif @stand_button.clicked?
             @game.stand :player
           end
         end
