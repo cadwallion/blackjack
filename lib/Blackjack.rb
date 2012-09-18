@@ -1,4 +1,5 @@
 require 'gosu'
+require 'ext/gosu/image'
 require "blackjack/version"
 require "blackjack/player"
 require 'blackjack/game'
@@ -41,15 +42,15 @@ module Blackjack
         close
       when Gosu::MsLeft
         if !@game_in_progress || (@game && @game.game_over?)
-          if start_button_clicked?
+          if @start_button.clicked? mouse_x, mouse_y
             @game = Game.new
             @game.deal
             @game_in_progress = true
           end
         else
-          if hit_button_clicked?
+          if @hit_button.clicked? mouse_x, mouse_y
             @game.hit :player
-          elsif stand_button_clicked?
+          elsif @stand_button.clicked? mouse_x, mouse_y
             @game.stand :player
           end
         end
@@ -111,18 +112,6 @@ module Blackjack
         end
         @font.draw title, 275, 10, ZOrder::UI
       end
-    end
-
-    def start_button_clicked?
-      ((275 < mouse_x) && (mouse_x < 375)) && ((220 < mouse_y) && (mouse_y < 270))
-    end
-
-    def hit_button_clicked?
-      ((425 < mouse_x) && (mouse_x < 525)) && ((375 < mouse_y) && (mouse_y < 425))
-    end
-
-    def stand_button_clicked?
-      ((545 < mouse_x) && (mouse_x < 645)) && ((375 < mouse_y) && (mouse_y < 425))
     end
 
     def needs_cursor?

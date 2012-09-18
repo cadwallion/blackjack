@@ -6,7 +6,7 @@ The classic card game written using Gosu.
 
 Add this line to your application's Gemfile:
 
-    gem 'Blackjack'
+    gem 'blackjack'
 
 And then execute:
 
@@ -14,7 +14,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install Blackjack
+    $ gem install blackjack
 
 ## Usage
 
